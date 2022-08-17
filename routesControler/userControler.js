@@ -45,7 +45,9 @@ const login = asyncHandler(async(req,res)=>{
     // res.send({message: "working"})
     const body = req.body;
     const {password, email} = body
+    // res.send(body)
     const user = await User.findOne({email})
+    // res.send(user)
     if(!user){
         res.send({message: "User is not found"})
     }

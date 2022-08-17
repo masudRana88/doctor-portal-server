@@ -8,7 +8,7 @@ const { singUp, login } = require("../routesControler/userControler");
 // Post request
 // api link /user/singup
 router.route("/singup").post(singUp)
-router.route("/login").post(login)
+router.route("/login").get(login)
 
 
 
