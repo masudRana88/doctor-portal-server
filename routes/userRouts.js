@@ -1,6 +1,7 @@
-const express = require('express')
+const express = require('express');
+const { getIdFormJwt } = require('../Hooks/jwtTocken');
 const router = express.Router();
-const { singUp, login } = require("../routesControler/userControler");
+const { singUp, login, loginWithJwt, updateUser } = require("../routesControler/userControler");
 
 
 
@@ -8,8 +9,20 @@ const { singUp, login } = require("../routesControler/userControler");
 // Post request
 // api link /user/singup
 router.route("/singup").post(singUp)
-router.route("/login").get(login)
 
+// Update user
+// Post request
+// api link /user/update
+router.route("/update").post(updateUser)
 
+// login user
+// post request
+// api link /user/login
+router.route("/login").post(login)
+
+// login user with jwt
+// GET request
+// api link /user/login/token
+router.route("/login/token").get(getIdFormJwt, loginWithJwt)
 
 module.exports = router
