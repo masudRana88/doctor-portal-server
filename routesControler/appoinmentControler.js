@@ -66,12 +66,29 @@ const deleteAppoinment = asyncHandler(async (req, res) => {
 
 // ========== GET All appoinment a appoinment =================
 const getAllAppoinment = asyncHandler(async (req, res) => {
-    const allAppoinment = await Appoinment.find();
-    if(allAppoinment.length > 0){
-        res.send(allAppoinment)
-    }else{
-        res.sendStatus(404)
-    }
+        const allAppoinment = await Appoinment.find();
+        if(allAppoinment.length > 0){
+            res.send(allAppoinment)
+        }else{
+            res.sendStatus(404)
+         }
+})
+// ========== GET All appoinment a appoinment =================
+const updateAllAppoinmentStatus = asyncHandler(async (req, res) => {
+        const {id} = req.params;
+        const {status} = req.body;
+        try {
+            const appoinment = await Appoinment.findById(id);
+            const updateData = await appoinment.update({status});
+            if(updateData.acknowledged === true){
+                res.send(updateData);
+            }else{
+                res.send({message : `Appoinment update fails !! `});
+            }
+        } catch (error) {
+            res.send({message : `Appoinment update fails !! `});
+        }
+        
 })
 
 // Exports =============
@@ -80,3 +97,4 @@ exports.createAppoinment = createAppoinment
 exports.deleteAppoinment = deleteAppoinment
 exports.getUserAppoinment = getUserAppoinment
 exports.getAllAppoinment = getAllAppoinment
+exports.updateAllAppoinmentStatus = updateAllAppoinmentStatus

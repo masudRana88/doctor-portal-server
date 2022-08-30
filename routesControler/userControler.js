@@ -2,7 +2,7 @@ const asyncHandler = require('express-async-handler');
 const { generateJWT } = require('../Hooks/jwtTocken');
 const { encriptPassWord, compearPassWord } = require('../Hooks/passwordGen');
 const { User } = require('../Model/userModel');
-
+const jwt = require('jsonwebtoken');
 // ====================
 //       User SingUp
 // ====================
@@ -42,7 +42,7 @@ const singUp = asyncHandler(async(req,res)=>{
         const encriptPass = encriptPassWord(password);
         const user =  await User.create({email, password:encriptPass, name})
         await user.save()
-        const token = generateJWT(user.id)
+        const token = generateJWT(user)
         res.send({
             id : user._id,
             name: user.name,
@@ -87,7 +87,6 @@ const updateUser = asyncHandler(async (req, res) => {
 //      post request
 // ====================
 const login = asyncHandler(async(req,res)=>{
-    
     const body = req.body;
     const {password, email} = body
     const sentNullUser=(m)=>{
@@ -107,7 +106,7 @@ const login = asyncHandler(async(req,res)=>{
         res.send(sentNullUser("User is not found"))
     }
     const validUser = compearPassWord(password,user.password);
-    const token = generateJWT(user.id)
+    const token = await generateJWT(user)
     if(validUser){
         res.status(200).json({
             id : user._id,
@@ -129,20 +128,40 @@ const login = asyncHandler(async(req,res)=>{
 //       User login With jwt
 // =================================
 const loginWithJwt = asyncHandler(async(req,res)=>{
-    const token = req.headers.token
-    const uaerId = req.userID
-    const id = uaerId.id
-    const user = await User.findById(id);
-    res.send({
-            id : user._id,
-            name: user.name,
-            email: user.email,
-            address : user.address,
-            phone: user.phone,
-            isAdmin : user.isAdmin,
-            jwt : token,
-            message : "Successfully Logged in!"
-    })
+    try {
+        const token = req.headers.token
+        if(token && token.startsWith("Bearer")){
+            const jwtToken = token.split(" ")[1];
+            const decode = await jwt.verify(jwtToken, process.env.JWT_PASS)
+            const {id} = decode
+            const user = await User.findById(id)
+            if(decode.email === user.email){
+                res.status(200).json({
+                    id : user._id,
+                    name: user.name,
+                    email: user.email,
+                    address : user.address,
+                    phone: user.phone,
+                    isAdmin : user.isAdmin,
+                    jwt: token,
+                    message : "Successfully Logged in!"
+                })
+            }
+        }
+    } catch (error) {
+        res.status(401).json({message: "Unathorize access token!!"})
+    }
+})
+// ================================
+//       get all users 
+// =================================
+const getAllUsers = asyncHandler(async(req,res)=>{
+    try {
+        const users = await User.find({}).select("-password").select("-__v")
+        res.send(users)
+    } catch (error) {
+        res.status(401).json({message: "Unathorize access token!!"})
+    }
 })
 
 
@@ -150,3 +169,4 @@ exports.singUp = singUp
 exports.updateUser = updateUser
 exports.login = login
 exports.loginWithJwt = loginWithJwt
+exports.getAllUsers = getAllUsers

@@ -23,8 +23,6 @@ app.get("/", (req,res)=>{
 // Login user with jwt >
 // update user >
 // get all user (only admin)
-// delete user by id (only admin)
-// delete all user (only admin) 
 app.use("/user", userRouts)
 
 

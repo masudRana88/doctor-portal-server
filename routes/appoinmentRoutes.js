@@ -1,6 +1,6 @@
 const express = require('express');
 const { adminRoutes } = require('../Hooks/privateRoute');
-const { createAppoinment, getUserAppoinment, deleteAppoinment, getAllAppoinment } = require('../routesControler/appoinmentControler');
+const { createAppoinment, getUserAppoinment, deleteAppoinment, getAllAppoinment, updateAllAppoinmentStatus } = require('../routesControler/appoinmentControler');
 const router = express.Router();
 
 // create a appoinment
@@ -18,11 +18,16 @@ router.route("/:userId").get(getUserAppoinment)
 // api link /appointment/delete/:userId
 router.route("/delete/:appointmentId").delete(deleteAppoinment);
 
-// get All  appoinment
+// get All appoinment
 // gat request
 // Admin routes
-// api link /appointment/all
-router.route("/all/:id").get(adminRoutes,getAllAppoinment);
+// api link /appointment/get/all
+router.route("/get/all/").get(adminRoutes,getAllAppoinment);
+// Update appoinment status
+// put request
+// Admin routes
+// api link /appointment/update/status/:id
+router.route("/update/status/:id").put(adminRoutes,updateAllAppoinmentStatus);
 
 
 
