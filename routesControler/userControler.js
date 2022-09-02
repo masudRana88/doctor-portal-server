@@ -3,6 +3,7 @@ const { generateJWT } = require('../Hooks/jwtTocken');
 const { encriptPassWord, compearPassWord } = require('../Hooks/passwordGen');
 const { User } = require('../Model/userModel');
 const jwt = require('jsonwebtoken');
+const { Appoinment } = require('../Model/appoinmentModel');
 // ====================
 //       User SingUp
 // ====================
@@ -42,7 +43,7 @@ const singUp = asyncHandler(async(req,res)=>{
         const encriptPass = encriptPassWord(password);
         const user =  await User.create({email, password:encriptPass, name})
         await user.save()
-        const token = generateJWT(user)
+        const token = await generateJWT({id: user.id, email: user.email, isAdmin: user.isAdmin})
         res.send({
             id : user._id,
             name: user.name,
@@ -163,6 +164,33 @@ const getAllUsers = asyncHandler(async(req,res)=>{
         res.status(401).json({message: "Unathorize access token!!"})
     }
 })
+// ================================
+//       Delete users 
+// =================================
+const deleteUser = asyncHandler(async(req,res)=>{
+    const id = req.params.id
+    const user = await User.findById(id)
+    const deleteUser = await User.deleteOne({_id: id})
+    if(deleteUser.deletedCount> 0){
+        const delete_All_Appointment_Of_This_User = await Appoinment.deleteMany({email: user.email})
+        res.send({id})
+    }
+  
+})
+// ================================
+//       Update users type 
+// =================================
+const updateIsAdmin = asyncHandler(async(req,res)=>{
+    const {id,type} = req.body
+    const user = await User.findOne({_id: id})
+    if(type === "true"){
+         const doc = await user.update({isAdmin: true})
+        res.send({id,type,message: "true"})
+    }else{
+        const doc = await user.update({isAdmin: false})
+        res.send({id,type, message:"false"})
+    }
+})
 
 
 exports.singUp = singUp
@@ -170,3 +198,5 @@ exports.updateUser = updateUser
 exports.login = login
 exports.loginWithJwt = loginWithJwt
 exports.getAllUsers = getAllUsers
+exports.deleteUser = deleteUser
+exports.updateIsAdmin = updateIsAdmin

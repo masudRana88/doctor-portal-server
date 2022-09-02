@@ -1,7 +1,7 @@
 const express = require('express');
 const { adminRoutes } = require('../Hooks/privateRoute');
 const router = express.Router();
-const { singUp, login, loginWithJwt, updateUser, getAllUsers } = require("../routesControler/userControler");
+const { singUp, login, loginWithJwt, updateUser, getAllUsers, deleteUser, updateIsAdmin } = require("../routesControler/userControler");
 
 
 
@@ -14,6 +14,17 @@ router.route("/singup").post(singUp)
 // Post request
 // api link /user/update
 router.route("/update").post(updateUser)
+
+
+// Update user to admin or admin to user
+// Post request
+// api link /user/update/type
+router.route("/update/type").post(adminRoutes,updateIsAdmin)
+
+// Delete user
+// Delete request
+// api link /user/delete/:id
+router.route("/delete/:id").delete(adminRoutes,deleteUser)
 
 // login user
 // post request
